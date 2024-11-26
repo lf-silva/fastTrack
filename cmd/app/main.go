@@ -4,13 +4,12 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/lf-silva/fastTrack/internal/handler"
-	"github.com/lf-silva/fastTrack/internal/routes"
-	"github.com/lf-silva/fastTrack/internal/store"
+	"github.com/lf-silva/fastTrack/internal/repo"
+	"github.com/lf-silva/fastTrack/internal/server"
 )
 
 func main() {
-	handler := handler.NewQuizHandler(store.NewInMemoryQuizStore())
-	server := routes.NewQuizServer(handler)
+	handler := server.NewQuizHandler(repo.NewInMemoryRepo())
+	server := server.NewQuizServer(handler)
 	log.Fatal(http.ListenAndServe(":5000", server))
 }

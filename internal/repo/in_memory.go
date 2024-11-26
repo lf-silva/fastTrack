@@ -1,44 +1,49 @@
-package store
+package repo
 
 import (
+	"sort"
 	"sync"
 
 	"github.com/lf-silva/fastTrack/internal/model"
 )
 
-type InMemoryQuizStore struct {
+type InMemoryRepo struct {
 	store  map[int]model.Question
 	scores []int
 	lock   sync.RWMutex
 }
 
-func NewInMemoryQuizStore() *InMemoryQuizStore {
+func NewInMemoryRepo() *InMemoryRepo {
 
-	return &InMemoryQuizStore{
-		questions,
+	return &InMemoryRepo{
+		storedQuestions,
 		scores,
 		sync.RWMutex{},
 	}
 }
 
-func (q *InMemoryQuizStore) GetQuestions() []model.Question {
-	array := make([]model.Question, 0, len(questions))
-	for _, q := range questions {
-		array = append(array, q)
+func (q *InMemoryRepo) GetQuestions() []model.Question {
+	questions := make([]model.Question, 0, len(storedQuestions))
+	for _, q := range storedQuestions {
+		questions = append(questions, q)
 	}
-	return array
+	sort.Slice(questions, func(i, j int) bool {
+		return questions[i].ID < questions[j].ID
+	})
+
+	return questions
 }
 
-func (q *InMemoryQuizStore) GetQuestion(id int) (model.Question, bool) {
-	question, ok := questions[id]
+func (q *InMemoryRepo) GetQuestion(id int) (model.Question, bool) {
+	question, ok := storedQuestions[id]
 	return question, ok
 }
 
-func (q *InMemoryQuizStore) SubmitScore(score int) {
+func (q *InMemoryRepo) SubmitScore(score int) {
 	q.scores = append(q.scores, score)
 }
 
-var questions = map[int]model.Question{
+var storedQuestions = map[int]model.Question{
 	1: {ID: 1, Question: "What is FastTrack model based on?", Answers: []string{"Complexity", "Singularity", "Dangerous", "Fun"}, CorrectAnswer: 1},
 	2: {ID: 2, Question: "When was FastTrack founded?", Answers: []string{"2010", "2013", "2016", "2019"}, CorrectAnswer: 2},
 	3: {ID: 3, Question: "What is FastTrack core product?", Answers: []string{"iGaming CRM ", "Real state CRM", "Financial Services", "E-commerce"}, CorrectAnswer: 0},

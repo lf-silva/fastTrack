@@ -1,4 +1,4 @@
-package routes
+package server
 
 import (
 	"encoding/json"
@@ -9,40 +9,40 @@ import (
 
 const jsonContentType = "application/json"
 
-type QuizHandler interface {
+type Domain interface {
 	GetQuestions() []model.Question
 	ValidateAnswers([]model.Answer) int
 }
 
 type QuizServer struct {
-	handler QuizHandler
+	domain Domain
 	http.Handler
 }
 
-func NewQuizServer(handler QuizHandler) *QuizServer {
+func NewQuizServer(quizDomain Domain) *QuizServer {
 	q := new(QuizServer)
 
-	q.handler = handler
+	q.domain = quizDomain
 	router := http.NewServeMux()
-	router.Handle("GET /questions", http.HandlerFunc(q.getQuestions))
-	router.Handle("POST /submit", http.HandlerFunc(q.validateAnswers))
+	router.Handle("GET /questions", http.HandlerFunc(q.questions))
+	router.Handle("POST /submit", http.HandlerFunc(q.submitAnswers))
 
 	q.Handler = router
 	return q
 }
 
-func (q *QuizServer) getQuestions(w http.ResponseWriter, r *http.Request) {
+func (q *QuizServer) questions(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("content-type", jsonContentType)
-	json.NewEncoder(w).Encode(q.handler.GetQuestions())
+	json.NewEncoder(w).Encode(q.domain.GetQuestions())
 }
 
-func (q *QuizServer) validateAnswers(w http.ResponseWriter, r *http.Request) {
+func (q *QuizServer) submitAnswers(w http.ResponseWriter, r *http.Request) {
 	var answers []model.Answer
 	if err := json.NewDecoder(r.Body).Decode(&answers); err != nil {
 		http.Error(w, "Invalid input", http.StatusBadRequest)
 		return
 	}
 
-	correctAnswers := q.handler.ValidateAnswers(answers)
+	correctAnswers := q.domain.ValidateAnswers(answers)
 	json.NewEncoder(w).Encode(correctAnswers)
 }

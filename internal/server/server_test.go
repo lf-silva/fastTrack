@@ -1,4 +1,4 @@
-package routes_test
+package server_test
 
 import (
 	"bytes"
@@ -9,39 +9,41 @@ import (
 	"testing"
 
 	"github.com/lf-silva/fastTrack/internal/model"
-	"github.com/lf-silva/fastTrack/internal/routes"
+	"github.com/lf-silva/fastTrack/internal/server"
 )
 
-func TestGetQuestions(t *testing.T) {
-	store := &StubQuizHandler{
-		questions: questions,
-	}
-	server := routes.NewQuizServer(store)
+func TestQuestions(t *testing.T) {
+	store := &StubQuizHandler{}
+	server := server.NewQuizServer(store)
 
 	t.Run("returns questions", func(t *testing.T) {
+		want := []model.Question{
+			{ID: 1, Question: "What is FastTrack model based on?", Answers: []string{"Complexity", "Singularity", "Dangerous", "Fun"}},
+			{ID: 2, Question: "When was FastTrack founded?", Answers: []string{"2010", "2013", "2016", "2019"}},
+			{ID: 3, Question: "What is FastTrack core product?", Answers: []string{"iGaming CRM ", "Real state CRM", "Financial Services", "E-commerce"}},
+			{ID: 4, Question: "What was last FastTrack component launch?", Answers: []string{"Singularity ", "Greco", "Vimeo", "Rewards"}},
+		}
 		request, _ := http.NewRequest(http.MethodGet, "/questions", nil)
 		response := httptest.NewRecorder()
 
 		server.ServeHTTP(response, request)
 
-		var result []model.Question
-		err := json.NewDecoder(response.Body).Decode(&result)
+		var got []model.Question
+		err := json.NewDecoder(response.Body).Decode(&got)
 		if err != nil {
 			t.Fatalf("Unable to parse response from server %q into slice of Player, '%v'", response.Body, err)
 		}
 
 		assertStatus(t, response.Code, http.StatusOK)
-		if !reflect.DeepEqual(result, questions) {
-			t.Errorf("got %v want %v", result, questions)
+		if !reflect.DeepEqual(got, want) {
+			t.Errorf("got %v want %v", got, want)
 		}
 	})
 }
 
-func TestValidateAnswers(t *testing.T) {
-	store := &StubQuizHandler{
-		questions: questions,
-	}
-	server := routes.NewQuizServer(store)
+func TestSubmitAnswers(t *testing.T) {
+	store := &StubQuizHandler{}
+	server := server.NewQuizServer(store)
 
 	t.Run("returns bad request with invalid json", func(t *testing.T) {
 		invalidJSON := `{"invalid":}`
@@ -67,7 +69,6 @@ func TestValidateAnswers(t *testing.T) {
 	})
 
 	t.Run("calls handler with valid answers", func(t *testing.T) {
-
 		userAnswers := []model.Answer{
 			{QuestionID: 1, UserAnswer: 0},
 			{QuestionID: 2, UserAnswer: 1},
@@ -85,7 +86,7 @@ func TestValidateAnswers(t *testing.T) {
 	})
 }
 
-func assertValidateAnswersCalls(t *testing.T, got, want int) {
+func assertValidateAnswersCalls(t testing.TB, got, want int) {
 	t.Helper()
 	if got != want {
 		t.Errorf("validate calls are wrong, got %d want %d", got, want)
@@ -100,22 +101,19 @@ func assertStatus(t testing.TB, got, want int) {
 }
 
 type StubQuizHandler struct {
-	questions     []model.Question
 	validateCalls int
 }
 
 func (s *StubQuizHandler) GetQuestions() []model.Question {
-	return s.questions
+	return []model.Question{
+		{ID: 1, Question: "What is FastTrack model based on?", Answers: []string{"Complexity", "Singularity", "Dangerous", "Fun"}, CorrectAnswer: 1},
+		{ID: 2, Question: "When was FastTrack founded?", Answers: []string{"2010", "2013", "2016", "2019"}, CorrectAnswer: 2},
+		{ID: 3, Question: "What is FastTrack core product?", Answers: []string{"iGaming CRM ", "Real state CRM", "Financial Services", "E-commerce"}, CorrectAnswer: 0},
+		{ID: 4, Question: "What was last FastTrack component launch?", Answers: []string{"Singularity ", "Greco", "Vimeo", "Rewards"}, CorrectAnswer: 3},
+	}
 }
 
 func (s *StubQuizHandler) ValidateAnswers(answers []model.Answer) int {
 	s.validateCalls++
 	return 0
-}
-
-var questions = []model.Question{
-	{ID: 1, Question: "What is FastTrack model based on?", Answers: []string{"Complexity", "Singularity", "Dangerous", "Fun"}, CorrectAnswer: 1},
-	{ID: 2, Question: "When was FastTrack founded?", Answers: []string{"2010", "2013", "2016", "2019"}, CorrectAnswer: 2},
-	{ID: 3, Question: "What is FastTrack core product?", Answers: []string{"iGaming CRM ", "Real state CRM", "Financial Services", "E-commerce"}, CorrectAnswer: 0},
-	{ID: 4, Question: "What was last FastTrack component launch?", Answers: []string{"Singularity ", "Greco", "Vimeo", "Rewards"}, CorrectAnswer: 3},
 }
