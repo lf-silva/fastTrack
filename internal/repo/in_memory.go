@@ -8,9 +8,9 @@ import (
 )
 
 type InMemoryRepo struct {
-	store  map[int]model.Question
-	scores []int
-	lock   sync.RWMutex
+	questions map[int]model.Question
+	scores    []int
+	lock      sync.RWMutex
 }
 
 func NewInMemoryRepo() *InMemoryRepo {
@@ -23,8 +23,11 @@ func NewInMemoryRepo() *InMemoryRepo {
 }
 
 func (q *InMemoryRepo) GetQuestions() []model.Question {
-	questions := make([]model.Question, 0, len(storedQuestions))
-	for _, q := range storedQuestions {
+	q.lock.RLock()
+	defer q.lock.RUnlock()
+
+	questions := make([]model.Question, 0, len(q.questions))
+	for _, q := range q.questions {
 		questions = append(questions, q)
 	}
 	sort.Slice(questions, func(i, j int) bool {
@@ -35,11 +38,17 @@ func (q *InMemoryRepo) GetQuestions() []model.Question {
 }
 
 func (q *InMemoryRepo) GetQuestion(id int) (model.Question, bool) {
-	question, ok := storedQuestions[id]
+	q.lock.RLock()
+	defer q.lock.RUnlock()
+
+	question, ok := q.questions[id]
 	return question, ok
 }
 
 func (q *InMemoryRepo) SubmitScore(score int) {
+	q.lock.Lock()
+	defer q.lock.Unlock()
+
 	q.scores = append(q.scores, score)
 }
 

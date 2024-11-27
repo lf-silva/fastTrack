@@ -1,4 +1,4 @@
-package server
+package domain
 
 import "github.com/lf-silva/fastTrack/internal/model"
 
@@ -7,27 +7,27 @@ type QuizStore interface {
 	GetQuestion(id int) (model.Question, bool)
 	SubmitScore(result int)
 }
-type QuizHandler struct {
+type QuizDomain struct {
 	store QuizStore
 }
 
-func NewQuizHandler(store QuizStore) *QuizHandler {
-	return &QuizHandler{
+func NewQuizDomain(store QuizStore) *QuizDomain {
+	return &QuizDomain{
 		store: store,
 	}
 }
-func (h *QuizHandler) GetQuestions() []model.Question {
-	return h.store.GetQuestions()
+func (d *QuizDomain) GetQuestions() []model.Question {
+	return d.store.GetQuestions()
 }
 
-func (h *QuizHandler) ValidateAnswers(answers []model.Answer) int {
+func (d *QuizDomain) ValidateAnswers(answers []model.Answer) int {
 	var correctAnswers int
 	for _, q := range answers {
-		question, ok := h.store.GetQuestion(q.QuestionID)
+		question, ok := d.store.GetQuestion(q.QuestionID)
 		if ok && question.IsAnswerCorrect(q.UserAnswer) {
 			correctAnswers++
 		}
 	}
-	h.store.SubmitScore(correctAnswers)
+	d.store.SubmitScore(correctAnswers)
 	return correctAnswers
 }

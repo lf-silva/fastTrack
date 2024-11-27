@@ -1,21 +1,21 @@
-package server_test
+package domain_test
 
 import (
 	"reflect"
 	"testing"
 
+	"github.com/lf-silva/fastTrack/internal/domain"
 	"github.com/lf-silva/fastTrack/internal/model"
-	"github.com/lf-silva/fastTrack/internal/server"
 )
 
 func TestGetQuestions(t *testing.T) {
 	store := &StubQuizStore{
 		questions: questions,
 	}
-	handler := server.NewQuizHandler(store)
+	domain := domain.NewQuizDomain(store)
 
 	t.Run("returns questions", func(t *testing.T) {
-		got := handler.GetQuestions()
+		got := domain.GetQuestions()
 
 		if !reflect.DeepEqual(got, questions) {
 			t.Errorf("got %v want %v", got, questions)
@@ -28,7 +28,7 @@ func TestValidateAnswers(t *testing.T) {
 		store := &StubQuizStore{
 			questions: questions,
 		}
-		handler := server.NewQuizHandler(store)
+		domain := domain.NewQuizDomain(store)
 
 		answers := []model.Answer{
 			{QuestionID: 1, UserAnswer: 0},
@@ -37,7 +37,7 @@ func TestValidateAnswers(t *testing.T) {
 			{QuestionID: 4, UserAnswer: 0},
 		}
 		want := 1
-		got := handler.ValidateAnswers(answers)
+		got := domain.ValidateAnswers(answers)
 
 		assertAnswers(t, got, want)
 		assertSubmitScoreCalls(t, store.submitCalls, 1)
@@ -46,7 +46,7 @@ func TestValidateAnswers(t *testing.T) {
 		store := &StubQuizStore{
 			questions: questions,
 		}
-		handler := server.NewQuizHandler(store)
+		domain := domain.NewQuizDomain(store)
 
 		answers := []model.Answer{
 			{QuestionID: 1, UserAnswer: 1},
@@ -55,7 +55,7 @@ func TestValidateAnswers(t *testing.T) {
 			{QuestionID: 4, UserAnswer: 3},
 		}
 		want := 4
-		got := handler.ValidateAnswers(answers)
+		got := domain.ValidateAnswers(answers)
 
 		assertAnswers(t, got, want)
 		assertSubmitScoreCalls(t, store.submitCalls, 1)

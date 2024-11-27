@@ -1,4 +1,4 @@
-package server_test
+package handlers_test
 
 import (
 	"bytes"
@@ -8,13 +8,13 @@ import (
 	"reflect"
 	"testing"
 
+	"github.com/lf-silva/fastTrack/internal/api/handlers"
 	"github.com/lf-silva/fastTrack/internal/model"
-	"github.com/lf-silva/fastTrack/internal/server"
 )
 
 func TestQuestions(t *testing.T) {
 	store := &StubQuizHandler{}
-	server := server.NewQuizServer(store)
+	handler := handlers.NewQuizHandler(store)
 
 	t.Run("returns questions", func(t *testing.T) {
 		want := []model.Question{
@@ -26,7 +26,7 @@ func TestQuestions(t *testing.T) {
 		request, _ := http.NewRequest(http.MethodGet, "/questions", nil)
 		response := httptest.NewRecorder()
 
-		server.ServeHTTP(response, request)
+		handler.GetQuestions(response, request)
 
 		var got []model.Question
 		err := json.NewDecoder(response.Body).Decode(&got)
@@ -43,14 +43,14 @@ func TestQuestions(t *testing.T) {
 
 func TestSubmitAnswers(t *testing.T) {
 	store := &StubQuizHandler{}
-	server := server.NewQuizServer(store)
+	handler := handlers.NewQuizHandler(store)
 
 	t.Run("returns bad request with invalid json", func(t *testing.T) {
 		invalidJSON := `{"invalid":}`
 		request, _ := http.NewRequest(http.MethodPost, "/submit", bytes.NewReader([]byte(invalidJSON)))
 		response := httptest.NewRecorder()
 
-		server.ServeHTTP(response, request)
+		handler.SubmitAnswers(response, request)
 
 		assertValidateAnswersCalls(t, store.validateCalls, 0)
 		assertStatus(t, response.Code, http.StatusBadRequest)
@@ -62,7 +62,7 @@ func TestSubmitAnswers(t *testing.T) {
 		request, _ := http.NewRequest(http.MethodPost, "/submit", bytes.NewReader([]byte(emptyJSON)))
 		response := httptest.NewRecorder()
 
-		server.ServeHTTP(response, request)
+		handler.SubmitAnswers(response, request)
 
 		assertValidateAnswersCalls(t, store.validateCalls, 0)
 		assertStatus(t, response.Code, http.StatusBadRequest)
@@ -80,7 +80,8 @@ func TestSubmitAnswers(t *testing.T) {
 		request, _ := http.NewRequest(http.MethodPost, "/submit", bytes.NewReader([]byte(body)))
 		response := httptest.NewRecorder()
 
-		server.ServeHTTP(response, request)
+		handler.SubmitAnswers(response, request)
+
 		assertValidateAnswersCalls(t, store.validateCalls, 1)
 		assertStatus(t, response.Code, http.StatusOK)
 	})
