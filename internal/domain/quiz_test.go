@@ -37,9 +37,10 @@ func TestValidateAnswers(t *testing.T) {
 			{QuestionID: 4, UserAnswer: 0},
 		}
 		want := 1
-		got := domain.ValidateAnswers(answers)
+		got, err := domain.SubmitAnswers(answers)
 
-		assertAnswers(t, got, want)
+		assertNoError(t, err)
+		assertAnswers(t, got.CorrectAnswers, want)
 		assertSubmitScoreCalls(t, store.submitCalls, 1)
 	})
 	t.Run("validates questions and returns correct value", func(t *testing.T) {
@@ -55,11 +56,44 @@ func TestValidateAnswers(t *testing.T) {
 			{QuestionID: 4, UserAnswer: 3},
 		}
 		want := 4
-		got := domain.ValidateAnswers(answers)
+		got, err := domain.SubmitAnswers(answers)
 
-		assertAnswers(t, got, want)
+		assertNoError(t, err)
+		assertAnswers(t, got.CorrectAnswers, want)
 		assertSubmitScoreCalls(t, store.submitCalls, 1)
 	})
+
+	t.Run("returns error when has more than one answer to the same question", func(t *testing.T) {
+		store := &StubQuizStore{
+			questions: questions,
+		}
+		d := domain.NewQuizDomain(store)
+
+		answers := []model.Answer{
+			{QuestionID: 1, UserAnswer: 1},
+			{QuestionID: 1, UserAnswer: 2},
+			{QuestionID: 3, UserAnswer: 0},
+			{QuestionID: 4, UserAnswer: 3},
+		}
+		_, err := d.SubmitAnswers(answers)
+
+		assertError(t, err, domain.MoreThanOneAnswerProvided)
+		assertSubmitScoreCalls(t, store.submitCalls, 0)
+	})
+}
+
+func assertNoError(t *testing.T, err error) {
+	t.Helper()
+	if err != nil {
+		t.Errorf("not expecting error, got %s", err.Error())
+	}
+}
+
+func assertError(t *testing.T, got error, want string) {
+	t.Helper()
+	if got == nil || got.Error() != want {
+		t.Errorf("expecting error %s", got.Error())
+	}
 }
 
 func assertAnswers(t *testing.T, got, want int) {

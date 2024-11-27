@@ -114,7 +114,7 @@ func (s *StubQuizHandler) GetQuestions() []model.Question {
 	}
 }
 
-func (s *StubQuizHandler) ValidateAnswers(answers []model.Answer) int {
+func (s *StubQuizHandler) SubmitAnswers(answers []model.Answer) (model.Result, error) {
 	s.validateCalls++
-	return 0
+	return model.Result{}, nil
 }

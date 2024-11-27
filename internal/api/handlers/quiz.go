@@ -12,7 +12,7 @@ const jsonContentType = "application/json"
 type (
 	QuizDomain interface {
 		GetQuestions() []model.Question
-		ValidateAnswers(userAnswers []model.Answer) int
+		SubmitAnswers(userAnswers []model.Answer) (model.Result, error)
 	}
 
 	QuizHandler struct {
@@ -35,6 +35,10 @@ func (q *QuizHandler) SubmitAnswers(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	correctAnswers := q.domain.ValidateAnswers(answers)
+	correctAnswers, err := q.domain.SubmitAnswers(answers)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
 	json.NewEncoder(w).Encode(correctAnswers)
 }
