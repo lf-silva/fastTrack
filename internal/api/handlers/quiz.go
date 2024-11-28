@@ -25,7 +25,11 @@ func NewQuizHandler(domain QuizDomain) *QuizHandler {
 }
 func (q *QuizHandler) GetQuestions(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("content-type", jsonContentType)
-	json.NewEncoder(w).Encode(q.domain.GetQuestions())
+	err := json.NewEncoder(w).Encode(q.domain.GetQuestions())
+	if err != nil {
+		w.WriteHeader(http.StatusBadGateway)
+		return
+	}
 }
 
 func (q *QuizHandler) SubmitAnswers(w http.ResponseWriter, r *http.Request) {
@@ -41,5 +45,9 @@ func (q *QuizHandler) SubmitAnswers(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	w.WriteHeader(http.StatusCreated)
-	json.NewEncoder(w).Encode(correctAnswers)
+	err = json.NewEncoder(w).Encode(correctAnswers)
+	if err != nil {
+		w.WriteHeader(http.StatusBadGateway)
+		return
+	}
 }
