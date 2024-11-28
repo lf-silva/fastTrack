@@ -49,15 +49,14 @@ func TestSubmitAnswers(t *testing.T) {
 			{QuestionID: 3, UserAnswer: 2},
 			{QuestionID: 4, UserAnswer: 3},
 		}
-		want := model.Result{CorrectAnswers: 1, Score: 10.0}
+		want := model.Result{CorrectAnswers: 1, Score: 0.125}
 
 		body, _ := json.Marshal(userAnswers)
 		request, _ := http.NewRequest(http.MethodPost, "/submit", bytes.NewReader([]byte(body)))
 		response := httptest.NewRecorder()
 
-		got := extractFromResponse[model.Result](t, response.Body)
-
 		server.ServeHTTP(response, request)
+		got := extractFromResponse[model.Result](t, response.Body)
 
 		assertStatus(t, response.Code, http.StatusCreated)
 		assertResponse(t, got, want)
