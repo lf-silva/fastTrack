@@ -7,7 +7,7 @@ import (
 	"github.com/lf-silva/fastTrack/internal/domain"
 )
 
-func NewRouter(domain *domain.QuizDomain) *http.ServeMux {
+func NewRouter(domain *domain.QuizService) *http.ServeMux {
 	router := http.NewServeMux()
 	quizHandler := handlers.NewQuizHandler(domain)
 	router.Handle("GET /questions", http.HandlerFunc(quizHandler.GetQuestions))

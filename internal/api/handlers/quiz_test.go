@@ -83,7 +83,7 @@ func TestSubmitAnswers(t *testing.T) {
 		handler.SubmitAnswers(response, request)
 
 		assertValidateAnswersCalls(t, store.validateCalls, 1)
-		assertStatus(t, response.Code, http.StatusOK)
+		assertStatus(t, response.Code, http.StatusCreated)
 	})
 }
 

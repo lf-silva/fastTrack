@@ -10,7 +10,7 @@ import (
 )
 
 func main() {
-	domain := domain.NewQuizDomain(repo.NewInMemoryRepo())
+	domain := domain.NewQuizService(repo.NewInMemoryRepo())
 	server := api.NewRouter(domain)
 	log.Fatal(http.ListenAndServe(":5000", server))
 }

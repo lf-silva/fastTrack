@@ -40,5 +40,6 @@ func (q *QuizHandler) SubmitAnswers(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
+	w.WriteHeader(http.StatusCreated)
 	json.NewEncoder(w).Encode(correctAnswers)
 }

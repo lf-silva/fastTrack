@@ -4,12 +4,14 @@ import (
 	"sort"
 	"sync"
 
+	"github.com/google/uuid"
 	"github.com/lf-silva/fastTrack/internal/model"
+	"github.com/wangjia184/sortedset"
 )
 
 type InMemoryRepo struct {
 	questions map[int]model.Question
-	scores    []int
+	scores    *sortedset.SortedSet
 	lock      sync.RWMutex
 }
 
@@ -17,7 +19,7 @@ func NewInMemoryRepo() *InMemoryRepo {
 
 	return &InMemoryRepo{
 		storedQuestions,
-		scores,
+		newSortedSet(),
 		sync.RWMutex{},
 	}
 }
@@ -37,19 +39,28 @@ func (q *InMemoryRepo) GetQuestions() []model.Question {
 	return questions
 }
 
-func (q *InMemoryRepo) GetQuestion(id int) (model.Question, bool) {
-	q.lock.RLock()
-	defer q.lock.RUnlock()
+func (r *InMemoryRepo) GetQuestion(id int) (model.Question, bool) {
+	r.lock.RLock()
+	defer r.lock.RUnlock()
 
-	question, ok := q.questions[id]
+	question, ok := r.questions[id]
 	return question, ok
 }
 
-func (q *InMemoryRepo) SubmitScore(score int) {
-	q.lock.Lock()
-	defer q.lock.Unlock()
+func (r *InMemoryRepo) SubmitScore(score int) {
+	r.lock.Lock()
+	defer r.lock.Unlock()
+	r.scores.AddOrUpdate(uuid.NewString(), sortedset.SCORE(score), nil)
+}
 
-	q.scores = append(q.scores, score)
+func (r *InMemoryRepo) GetIndexes(score int) (int, int) {
+	r.lock.Lock()
+	defer r.lock.Unlock()
+
+	scoreRange := r.scores.GetByScoreRange(0, sortedset.SCORE(score), &sortedset.GetByScoreRangeOptions{
+		ExcludeEnd: true,
+	})
+	return len(scoreRange), r.scores.GetCount()
 }
 
 var storedQuestions = map[int]model.Question{
@@ -59,4 +70,15 @@ var storedQuestions = map[int]model.Question{
 	4: {ID: 4, Question: "What was last FastTrack component launch?", Answers: []string{"Singularity ", "Greco", "Vimeo", "Rewards"}, CorrectAnswer: 3},
 }
 
-var scores = []int{3, 4, 0, 1, 2}
+func newSortedSet() *sortedset.SortedSet {
+	s := sortedset.New()
+	s.AddOrUpdate(uuid.New().String(), 0, nil)
+	s.AddOrUpdate(uuid.New().String(), 1, nil)
+	s.AddOrUpdate(uuid.New().String(), 4, nil)
+	s.AddOrUpdate(uuid.New().String(), 2, nil)
+	s.AddOrUpdate(uuid.New().String(), 3, nil)
+	s.AddOrUpdate(uuid.New().String(), 4, nil)
+	s.AddOrUpdate(uuid.New().String(), 3, nil)
+
+	return s
+}
