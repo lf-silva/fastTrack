@@ -9,6 +9,7 @@ import (
 	"fmt"
 	"net/http"
 	"os"
+	"strconv"
 
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
@@ -26,6 +27,7 @@ var (
 ▐▌   ▐▌ ▐▌▗▄▄▞▘  █        █  ▐▌ ▐▌▐▌ ▐▌▝▚▄▄▖▐▌ ▐▌    ▐▙▄▟▙▖▝▚▄▞▘▗▄█▄▖▐▙▄▄▄▖
 `
 	logoStyle = lipgloss.NewStyle().Foreground(lipgloss.Color("#257FAD")).Bold(true)
+	popStyle  = lipgloss.NewStyle().Foreground(lipgloss.Color("#01FAC6")).Bold(true)
 )
 
 // startCmd represents the start command
@@ -66,16 +68,6 @@ to quickly create a Cobra application.`,
 
 func init() {
 	rootCmd.AddCommand(startCmd)
-
-	// Here you will define your flags and configuration settings.
-
-	// Cobra supports Persistent Flags which will work for this command
-	// and all subcommands, e.g.:
-	// startCmd.PersistentFlags().String("foo", "", "A help for foo")
-
-	// Cobra supports local flags which will only run when this command
-	// is called directly, e.g.:
-	// startCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 }
 
 func getQuestions() []model.Question {
@@ -114,6 +106,9 @@ func submitResult(answers []model.Answer) model.Result {
 }
 
 func showResult(r model.Result) {
-	fmt.Printf("You got %d correct answers!\n", r.CorrectAnswers)
-	fmt.Printf("You were better than %d%% of all quizzers", r.Score)
+	a := popStyle.Render(strconv.Itoa(r.CorrectAnswers))
+	s := popStyle.Render(strconv.Itoa(r.Score) + "%")
+
+	fmt.Printf("You got %s correct answers!\n", a)
+	fmt.Printf("You were better than %s of all quizzers", s)
 }
