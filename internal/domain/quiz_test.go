@@ -1,7 +1,7 @@
 package domain_test
 
 import (
-	"math"
+	"reflect"
 	"testing"
 
 	"github.com/lf-silva/fastTrack/internal/domain"
@@ -51,7 +51,7 @@ func TestSubmitAnswers(t *testing.T) {
 
 		domain := domain.NewQuizService(mockRepo)
 
-		want := model.Result{CorrectAnswers: 1, Score: 0.1}
+		want := model.Result{CorrectAnswers: 1, Score: 10}
 		got, err := domain.SubmitAnswers(answers)
 
 		mockRepo.AssertNumberOfCalls(t, "GetQuestion", 2)
@@ -83,9 +83,10 @@ func TestSubmitAnswers(t *testing.T) {
 
 func assertResult(t *testing.T, got, want model.Result) {
 	t.Helper()
-	const equalityThreshold = 1e-7
+	// const equalityThreshold = 1e-7
 
-	if got.CorrectAnswers != want.CorrectAnswers || math.Abs(got.Score-want.Score) > equalityThreshold {
+	if !reflect.DeepEqual(got, want) {
+		//got.CorrectAnswers != want.CorrectAnswers || math.Abs(got.Score-want.Score) > equalityThreshold {
 		t.Errorf("result is wrong, got %v want %v", got, want)
 	}
 }

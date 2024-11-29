@@ -4,29 +4,27 @@ import (
 	"fmt"
 
 	tea "github.com/charmbracelet/bubbletea"
+	"github.com/lf-silva/fastTrack/internal/ui/program"
 )
 
 type Model struct {
 	question  string
 	cursor    int
 	choices   []string
-	selected  map[int]struct{}
 	submitted bool
+	exit      *bool
 }
 
-func InitialModel(title string, choices []string) Model {
+func InitialModel(header string, choices []string, program *program.Project) Model {
 	return Model{
 		choices:  choices,
-		question: title,
-		// A map which indicates which choices are selected. We're using
-		// the map like a mathematical set. The keys refer to the indexes
-		// of the `choices` slice, above.
-		selected: make(map[int]struct{}),
+		question: header,
+		exit:     &program.Exit,
 	}
 }
 
 func (m Model) Init() tea.Cmd {
-	return tea.SetWindowTitle(m.question)
+	return nil
 }
 
 func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
@@ -34,6 +32,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case tea.KeyMsg:
 		switch msg.String() {
 		case "ctrl+c", "q":
+			*m.exit = true
 			return m, tea.Quit
 		case "up", "k":
 			if m.cursor > 0 {
@@ -44,13 +43,8 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				m.cursor++
 			}
 		case "enter", " ":
-			_, ok := m.selected[m.cursor]
 			m.submitted = true
-			if ok {
-				delete(m.selected, m.cursor)
-			} else {
-				m.selected[m.cursor] = struct{}{}
-			}
+			return m, tea.Quit
 		}
 	}
 
@@ -58,13 +52,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (m Model) View() string {
-	if m.submitted {
-		// m.Answer = m.cursor
-		return fmt.Sprintf("You chose: %d\nPress 'q' to quit.\n", m.cursor) // m.choices[m.cursor]
-	}
-
-	// Render the question and choices
-	s := "What is your answer?\n\n"
+	s := fmt.Sprintf("%s\n\n", m.question)
 	for i, choice := range m.choices {
 		cursor := " " // No cursor by default
 		if m.cursor == i {

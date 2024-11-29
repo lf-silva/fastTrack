@@ -2,6 +2,7 @@ package domain
 
 import (
 	"errors"
+	"math"
 
 	"github.com/lf-silva/fastTrack/internal/model"
 )
@@ -38,9 +39,9 @@ func (d *QuizService) SubmitAnswers(answers []model.Answer) (model.Result, error
 	return model.Result{CorrectAnswers: correctAnswers, Score: relativeScore}, nil
 }
 
-func calculateRelativeScore(correctAnswers int, d *QuizService) float64 {
+func calculateRelativeScore(correctAnswers int, d *QuizService) int {
 	userIndex, totalScores := d.store.GetIndexes(correctAnswers)
-	return float64(userIndex) / float64(totalScores)
+	return int(math.Round((float64(userIndex) / float64(totalScores)) * 100))
 }
 
 func validateAnswers(answers []model.Answer, d *QuizService) int {

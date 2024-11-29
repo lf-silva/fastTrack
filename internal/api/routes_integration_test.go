@@ -49,7 +49,7 @@ func TestSubmitAnswers(t *testing.T) {
 			{QuestionID: 3, UserAnswer: 2},
 			{QuestionID: 4, UserAnswer: 3},
 		}
-		want := model.Result{CorrectAnswers: 1, Score: 0.125}
+		want := model.Result{CorrectAnswers: 1, Score: 13}
 
 		body, _ := json.Marshal(userAnswers)
 		request, _ := http.NewRequest(http.MethodPost, "/submit", bytes.NewReader([]byte(body)))
