@@ -1,4 +1,36 @@
-# fastTrack
+# fastTrack Quiz
+FastTrack CLI is a command-line tool that interacts with a server API. By using the program who will have to answer several different questions about Fast Track and in the end the program will display both the number of correct answers and how you compare to others that had already answered the quiz.
+This README provides instructions for setting up and running the CLI.
+
+## Prerequisites
+
+- Ensure Go is installed (if not, follow instructions [here](https://go.dev/doc/install))
+
+
+
+## Installation
+1. Clone the repository and open folder
+```
+git clone https://github.com/lf-silva/fastTrack.git
+cd fastTrack
+```
+2. Start the server by running the following command:
+```
+go run ./cmd/app/main.go
+```
+3. Open a second terminal window and, from the repository **root folder**, install the application running these 2 commands:
+```
+ go build ./cmd/cli
+ go install ./cmd/cli
+```
+4. Start the terminal application with the following instruction:
+```
+cli start
+```
+
+
+
+# Requirements
 Fast Track Code Test Quiz - Instructions 
 The task is to build a super simple quiz with a few questions and a few alternatives for each question. Each with one correct answer. 
 

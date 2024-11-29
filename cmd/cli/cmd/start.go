@@ -33,13 +33,13 @@ var (
 // startCmd represents the start command
 var startCmd = &cobra.Command{
 	Use:   "start",
-	Short: "A brief description of your command",
-	Long: `A longer description that spans multiple lines and likely contains examples
-and usage of using your command. For example:
+	Short: "Start your quiz!",
+	Long: `Start quiz will display questions, one by one, with 4 possible answers.
+You can choose one answer per question and you should press 'Enter' or 'space'
+to retrieve the next question.
+After answering the last question, the program will display both the total number
+of correct answers and do you compare to others.`,
 
-Cobra is a CLI library for Go that empowers applications.
-This application is a tool to generate the needed files
-to quickly create a Cobra application.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		fmt.Printf("%s\n", logoStyle.Render(logo))
 
