@@ -28,3 +28,4 @@ cmd/.DS_Store
 
 # IDE files
 .vscode
+cli
