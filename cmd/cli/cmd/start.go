@@ -102,6 +102,6 @@ func submitResult(answers []model.Answer) model.Result {
 }
 
 func showResult(r model.Result) {
-	fmt.Printf("You got %d correct answers!/n", r.CorrectAnswers)
+	fmt.Printf("You got %d correct answers!\n", r.CorrectAnswers)
 	fmt.Printf("You were better than %d%% of all quizzers", r.Score)
 }
