@@ -11,10 +11,21 @@ import (
 	"os"
 
 	tea "github.com/charmbracelet/bubbletea"
+	"github.com/charmbracelet/lipgloss"
 	"github.com/lf-silva/fastTrack/internal/model"
 	"github.com/lf-silva/fastTrack/internal/ui/multiSelect"
 	"github.com/lf-silva/fastTrack/internal/ui/program"
 	"github.com/spf13/cobra"
+)
+
+var (
+	logo = `
+▗▄▄▄▖ ▗▄▖  ▗▄▄▖▗▄▄▄▖    ▗▄▄▄▖▗▄▄▖  ▗▄▖  ▗▄▄▖▗▖ ▗▖    ▗▄▄▄▖ ▗▖ ▗▖▗▄▄▄▖▗▄▄▄▄▖
+▐▌   ▐▌ ▐▌▐▌     █        █  ▐▌ ▐▌▐▌ ▐▌▐▌   ▐▌▗▞▘    ▐▌ ▐▌ ▐▌ ▐▌  █     ▗▞▘
+▐▛▀▀▘▐▛▀▜▌ ▝▀▚▖  █        █  ▐▛▀▚▖▐▛▀▜▌▐▌   ▐▛▚▖     ▐▌ ▐▌ ▐▌ ▐▌  █   ▗▞▘  
+▐▌   ▐▌ ▐▌▗▄▄▞▘  █        █  ▐▌ ▐▌▐▌ ▐▌▝▚▄▄▖▐▌ ▐▌    ▐▙▄▟▙▖▝▚▄▞▘▗▄█▄▖▐▙▄▄▄▖
+`
+	logoStyle = lipgloss.NewStyle().Foreground(lipgloss.Color("#257FAD")).Bold(true)
 )
 
 // startCmd represents the start command
@@ -28,6 +39,7 @@ Cobra is a CLI library for Go that empowers applications.
 This application is a tool to generate the needed files
 to quickly create a Cobra application.`,
 	Run: func(cmd *cobra.Command, args []string) {
+		fmt.Printf("%s\n", logoStyle.Render(logo))
 
 		questions := getQuestions()
 

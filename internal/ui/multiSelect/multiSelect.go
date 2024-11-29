@@ -4,7 +4,14 @@ import (
 	"fmt"
 
 	tea "github.com/charmbracelet/bubbletea"
+	"github.com/charmbracelet/lipgloss"
 	"github.com/lf-silva/fastTrack/internal/ui/program"
+)
+
+var (
+	headerStyle       = lipgloss.NewStyle().Foreground(lipgloss.Color("#01FAC6")).Bold(true)
+	selectedItemStyle = lipgloss.NewStyle().PaddingLeft(1).Foreground(lipgloss.Color("#E9681A")).Bold(true)
+	focusedStyle      = lipgloss.NewStyle().Foreground(lipgloss.Color("#01FAC6")).Bold(true)
 )
 
 type Model struct {
@@ -52,11 +59,12 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (m Model) View() string {
-	s := fmt.Sprintf("%s\n\n", m.question)
+	s := fmt.Sprintf("%s\n", headerStyle.Render(m.question))
 	for i, choice := range m.choices {
-		cursor := " " // No cursor by default
+		cursor := " "
 		if m.cursor == i {
-			cursor = ">" // Cursor points to the current choice
+			cursor = focusedStyle.Render(">")
+			choice = selectedItemStyle.Render(choice)
 		}
 		s += fmt.Sprintf("%s %s\n", cursor, choice)
 	}
