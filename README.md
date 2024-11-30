@@ -14,14 +14,13 @@ This README provides instructions for setting up and running the CLI.
 git clone https://github.com/lf-silva/fastTrack.git
 cd fastTrack
 ```
-2. Start the server by running the following command:
+2. Start the server by running the following command from the repository **root folder**:
 ```
-go run ./cmd/app/main.go
+make server
 ```
-3. Open a second terminal window and, from the repository **root folder**, install the application running these 2 commands:
+3. Open a second terminal window and, also from the repository **root folder**, install the application running these 2 commands:
 ```
- go build ./cmd/cli
- go install ./cmd/cli
+make cli
 ```
 4. Start the terminal application with the following instruction:
 ```

@@ -83,10 +83,8 @@ func TestSubmitAnswers(t *testing.T) {
 
 func assertResult(t *testing.T, got, want model.Result) {
 	t.Helper()
-	// const equalityThreshold = 1e-7
 
 	if !reflect.DeepEqual(got, want) {
-		//got.CorrectAnswers != want.CorrectAnswers || math.Abs(got.Score-want.Score) > equalityThreshold {
 		t.Errorf("result is wrong, got %v want %v", got, want)
 	}
 }
